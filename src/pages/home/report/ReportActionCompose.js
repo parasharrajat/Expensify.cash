@@ -128,9 +128,6 @@ class ReportActionCompose extends React.Component {
     }
 
     componentWillUnmount() {
-        if (this.emojiFocusInteractionHandle) {
-            this.emojiFocusInteractionHandle.cancel();
-        }
         if (this.textInputFocusInteractionHandle) {
             this.textInputFocusInteractionHandle.cancel();
         }
@@ -258,11 +255,9 @@ class ReportActionCompose extends React.Component {
      * Focus the search input in the emoji picker.
      */
     focusEmojiSearchInput() {
-        this.emojiFocusInteractionHandle = InteractionManager.runAfterInteractions(() => {
-            if (this.emojiSearchInput && !this.props.isSmallScreenWidth) {
-                this.emojiSearchInput.focus();
-            }
-        });
+        if (this.emojiSearchInput) {
+            this.emojiSearchInput.focus();
+        }
     }
 
     /**

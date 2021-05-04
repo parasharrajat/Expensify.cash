@@ -61,9 +61,12 @@ const propTypes = {
     // Whether to show the title tooltip
     showTitleTooltip: PropTypes.bool,
 
-    // The ref to the search input
-    // eslint-disable-next-line react/forbid-prop-types
-    navigation: PropTypes.object.isRequired,
+    // Navigation prop from naviagtion lib
+    navigation: PropTypes.objectOf({
+
+        // Method to attach listner to Navigaton state.
+        addListener: PropTypes.func.isRequired,
+    }).isRequired,
 };
 
 const defaultProps = {
@@ -92,6 +95,11 @@ class OptionsSelector extends Component {
     }
 
     componentDidMount() {
+        // We should focus only after all the Interactions are finished
+        // We can't use InteractionManager as it is not working well on Web
+        // https://reactnative.dev/docs/interactionmanager#advanced.
+        // as a alternative we are listening for transitionEnd on navigation
+        // this is only present for components that are directly used in Navigation Screens.
         this.unsubscribeTransitionEnd = this.props.navigation.addListener('transitionEnd', () => {
             this.textInput.focus();
         });
