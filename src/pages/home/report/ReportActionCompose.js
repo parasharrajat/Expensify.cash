@@ -52,6 +52,7 @@ import ROUTES from '../../../ROUTES';
 import ReportActionPropTypes from './ReportActionPropTypes';
 import {canEditReportAction} from '../../../libs/reportUtils';
 import ReportActionComposeFocusManager from '../../../libs/ReportActionComposeFocusManager';
+import isNative from '../../../libs/isNative';
 
 const propTypes = {
     /** Beta features list */
@@ -220,9 +221,16 @@ class ReportActionCompose extends React.Component {
     /**
      * Focus the composer text input
      * @param {Boolean} [shouldelay=false] Impose delay before focusing the composer
+     * @param {Boolean} [sync=false] immediately call focus
      * @memberof ReportActionCompose
      */
-    focus(shouldelay = false) {
+    focus(shouldelay = false, sync = false) {
+        // We need to call focus synchronously on safari Mobile to open the keyboard
+        if (sync && this.textInput) {
+            this.textInput.focus();
+            return;
+        }
+
         // There could be other animations running while we trigger manual focus.
         // This prevents focus from making those animations janky.
         InteractionManager.runAfterInteractions(() => {
@@ -350,6 +358,11 @@ class ReportActionCompose extends React.Component {
         };
         this.setState({selection: updatedSelection});
         this.updateComment(newComment);
+
+        // Safari blocks keyboard for async manual focus so we need to focus synchronously on web.
+        if (!isNative()) {
+            this.focus(false, true);
+        }
     }
 
     /**
@@ -519,7 +532,7 @@ class ReportActionCompose extends React.Component {
                         isVisible={this.state.isEmojiPickerVisible}
                         onClose={this.hideEmojiPicker}
                         onModalShow={this.focusEmojiSearchInput}
-                        onModalHide={() => this.focus(true)}
+                        onModalHide={() => isNative() && this.focus(true)}
                         hideModalContentWhileAnimating
                         animationInTiming={1}
                         animationOutTiming={1}
